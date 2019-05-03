@@ -3,6 +3,7 @@
 // ------ MODULES -----------
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 
 // -------- SETUP EXPRESS -----
@@ -14,6 +15,7 @@ app.set('view engine', 'pug');
 
 // tell express to use body-parser, no extended option
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(cookieParser());
 
 // local server for development
 app.listen(3000, () => {
@@ -24,17 +26,36 @@ app.listen(3000, () => {
 
 // -- ROUTES --
 app.get('/', (req, res) => {
-  res.render('index');
+  const name = req.cookies.username;
+  if (name) {
+    res.render('index', { name: name });
+  } else {
+    res.redirect('/hello');
+  }
 });
 
-app.get('/cards', (req, res) => {
-  res.render('card', {prompt: "Who is buried in Grant's tomb"});
+// goodbye
+app.post('/goodbye', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/hello');
 });
+
+// hello
 
 app.get('/hello', (req, res) => {
-  res.render('hello');
+  if (req.cookies.username) {
+    res.redirect('/');
+  } else {
+    res.render('hello');
+  }
 });
 
 app.post('/hello', (req, res) => {
-  res.render('hello', { name: req.body.username });
+  res.cookie('username', req.body.username);
+  res.redirect('/');
+});
+
+// cards
+app.get('/cards', (req, res) => {
+  res.render('card', { prompt: "Who is buried in Grant's tomb" });
 });
