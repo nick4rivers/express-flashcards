@@ -17,12 +17,11 @@ app.set('view engine', 'pug');
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
-// local server for development
-app.listen(3000, () => {
-  console.log('The application is running on localhost:3000');
-});
+
 
 // -- HELPERS --
+
+
 
 // -- ROUTES --
 app.get('/', (req, res) => {
@@ -58,4 +57,29 @@ app.post('/hello', (req, res) => {
 // cards
 app.get('/cards', (req, res) => {
   res.render('card', { prompt: "Who is buried in Grant's tomb" });
+});
+
+
+// --- ERROR HANDLING ---
+
+// 404 error handler
+// basically, if we haven't matched a route it's gonna go 404
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// General error handler
+app.use((err, req, res, nex) => {
+  res.locals.error = err;
+  res.status(err.status);
+  // call my template, and pass the err object
+  res.render('error', err);
+});
+
+
+// local server for development
+app.listen(3000, () => {
+  console.log('The application is running on localhost:3000');
 });
