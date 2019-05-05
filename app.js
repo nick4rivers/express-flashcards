@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 
-// -------- SETUP EXPRESS -----
+// -------- Express Configuration -----
 // new express app
 const app = express();
 
@@ -18,46 +18,14 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
 
-
-// -- HELPERS --
-
-
-
 // -- ROUTES --
-app.get('/', (req, res) => {
-  const name = req.cookies.username;
-  if (name) {
-    res.render('index', { name: name });
-  } else {
-    res.redirect('/hello');
-  }
-});
+// bring in main site routes from index file
+const mainRoutes = require('./routes');
+app.use(mainRoutes);
 
-// goodbye
-app.post('/goodbye', (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/hello');
-});
-
-// hello
-
-app.get('/hello', (req, res) => {
-  if (req.cookies.username) {
-    res.redirect('/');
-  } else {
-    res.render('hello');
-  }
-});
-
-app.post('/hello', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/');
-});
-
-// cards
-app.get('/cards', (req, res) => {
-  res.render('card', { prompt: "Who is buried in Grant's tomb" });
-});
+// bring in cards routes
+const cardRoutes = require('./routes/cards');
+app.use('./cards', cardRoutes);
 
 
 // --- ERROR HANDLING ---
@@ -69,7 +37,7 @@ app.use((req, res, next) => {
   err.status = 404;
   next(err);
 });
-
+  
 // General error handler
 app.use((err, req, res, nex) => {
   res.locals.error = err;
@@ -77,7 +45,7 @@ app.use((err, req, res, nex) => {
   // call my template, and pass the err object
   res.render('error', err);
 });
-
+  
 
 // local server for development
 app.listen(3000, () => {
