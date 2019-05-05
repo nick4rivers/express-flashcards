@@ -1,6 +1,6 @@
 // jshint esversion: 6
 
-// ------ MODULES -----------
+// ------ NODE MODULES -----------
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -10,12 +10,15 @@ const cookieParser = require('cookie-parser');
 // new express app
 const app = express();
 
-// tell express to use 'pug' templating
-app.set('view engine', 'pug');
-
 // tell express to use body-parser, no extended option
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
+
+// location for static files, and routed to static
+app.use('/static', express.static('public'));
+
+// tell express to use 'pug' templating
+app.set('view engine', 'pug');
 
 
 // -- ROUTES --
@@ -25,7 +28,7 @@ app.use(mainRoutes);
 
 // bring in cards routes
 const cardRoutes = require('./routes/cards');
-app.use('./cards', cardRoutes);
+app.use('/cards', cardRoutes);
 
 
 // --- ERROR HANDLING ---
